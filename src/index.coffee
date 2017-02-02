@@ -9,16 +9,21 @@ class IEVMBaseLauncher
 
 	constructor: (baseBrowserDecorator, config, args, logger) ->
 		baseBrowserDecorator(@)
+
+		config.IEVMSettings ?= {}
+		config.IEVMSettings.debug ?= false
+		config.IEVMSettings.stopOnExit ?= false
+		config.IEVMSettings.host ?= iectrl.IEVM.hostIp
+
 		{ @IEVMSettings } = config
 
 		log = logger.create("#{@machine.name}.launcher")
 		@machine.debug = log.debug.bind(log) if @IEVMSettings.debug
 
-		ip = @IEVMSettings.host or iectrl.IEVM.hostIp
+		@_start = (url) =>
 
-		@_start = (url) ->
-
-			url = "#{url}".replace 'localhost', ip if ip?
+			if @IEVMSettings.host?
+				url = "#{url}".replace 'localhost', @IEVMSettings.host
 
 			@machine
 				.running()
@@ -42,10 +47,8 @@ class IEVMBaseLauncher
 
 				@machine
 					.close()
-					.then ->
-						@machine
-							.stop()
-							.then resolve
+					.then => @machine.stop().then(resolve).catch(reject)
+					.then resolve
 					.catch reject
 
 
