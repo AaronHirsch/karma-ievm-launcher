@@ -71,6 +71,7 @@ iectrl.IEVM.names
 			class extends IEVMBaseLauncher
 				constructor: (baseBrowserDecorator, config, args, logger) ->
 					@name = "#{name}Launcher"
+					@displayName = original
 					@ENV_CMD = "#{name}_BIN"
 					@machine = iectrl.IEVM.find(original).pop()
 					super
